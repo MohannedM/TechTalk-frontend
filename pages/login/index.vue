@@ -1,6 +1,22 @@
 <template>
   <div>
     <v-container>
+      <v-snackbar
+        v-model="snackbar"
+        color="red"
+        :timeout="5000"
+        :top="true"
+        :multi-line="true"
+      >
+        {{ errorMessage }}
+        <v-btn
+          dark
+          text
+          @click="snackbar = false"
+        >
+          Close
+        </v-btn>
+      </v-snackbar>
       <v-row no-gutters style="height:90vh;" justify="center">
         <v-col align-self="center" cols="9">
           <h3 class="headline mb-4">Login into your account</h3>
@@ -62,7 +78,9 @@ export default {
   data() {
     return { 
         email: "",
-        password: "" 
+        password: "",
+        snackbar: false,
+        errorMessage: "" 
     };
   },
   methods: {
@@ -72,10 +90,11 @@ export default {
         password: this.password
       })
       .then(result=>{
-        console.log(result);
+        this.$router.push("/");
       })
       .catch(err=>{
-        console.log(err);
+        this.errorMessage = err[0].message;
+        this.snackbar = true;
       })
     }
   },

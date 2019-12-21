@@ -31,6 +31,7 @@
             <v-text-field
               v-model="password"
               label="Password"
+              name="password"
               prepend-inner-icon="mdi-lock"
               :error-messages="passwordErrors"
               @input="$v.password.$touch()"
