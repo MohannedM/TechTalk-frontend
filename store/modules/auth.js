@@ -10,6 +10,9 @@ const getters = {
     },
     userData(state){
         return state.user;
+    },
+    getToken(state){
+        return state.token;
     }
 
 };

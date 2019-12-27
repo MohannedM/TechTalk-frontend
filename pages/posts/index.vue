@@ -45,19 +45,12 @@
                     color="indigo"
                     class="mr-4"
                     :disabled="$v.$invalid || !image || imageExtError !== null || imageSizeError !== null"
+                    @click="createPost"
                     dark
                     >
                     Add Post
                     </v-btn>
             
-                    <v-btn
-                    color="error"
-                    class="mr-4"
-                    @click="reset"
-                    >
-                    Reset Form
-                    </v-btn>
-
                 </v-form>
             </v-col>
         </v-row>
@@ -123,12 +116,13 @@ export default {
         }
     },
     methods:{
-        reset(){
-            this.title = "";
-            this.content = "";
-            this.image = true;
-        },
-        onFileSelected(event){
+      resetForm(){
+        this.title = "";
+        this.content = "";
+        this.image = true;
+        this.$v.$reset();
+      },
+      onFileSelected(event){
           this.imageSizeError = null;
           this.imageExtError = null;
           this.image = true;
@@ -144,6 +138,17 @@ export default {
         },
         requireImage(){
           if(this.image === true) this.image = null;
+        },
+        createPost(){
+          this.$store.dispatch("addPost", {
+            image: this.image,
+            content: this.content,
+            title: this.title
+          })
+          .then(()=>{
+            this.resetForm();
+          })  
+          .catch(err=>console.log(err));
         }
     },
     computed:{
