@@ -132,6 +132,7 @@ export default {
           this.imageSizeError = null;
           this.imageExtError = null;
           this.image = true;
+          if(!event) return this.image = null;
           if(event.size > 50000){
             return this.imageSizeError = "Max file size is 50MB";
           }
