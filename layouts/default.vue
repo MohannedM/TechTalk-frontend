@@ -11,10 +11,36 @@
       </v-toolbar-title>
       <v-spacer />
       <template v-if="isLoggedIn">
-        <v-btn text v-if="user.is_admin === 1" color="indigo">Admin Dashboard</v-btn>
-        <v-btn text>{{user.name}}</v-btn>
-        <v-btn text>My Posts</v-btn>
-        <v-btn text @click="logout">Logout</v-btn>
+        <v-menu
+          v-model="value"
+          :absolute="false"
+          :open-on-hover="false"
+          :close-on-click="true"
+          :close-on-content-click="true"
+          :offset-x="false"
+          :offset-y="true"
+        >
+          <template v-slot:activator="{ on }">
+            <v-btn
+              text
+              v-on="on"
+            >
+              {{user.name}}
+            </v-btn>
+          </template>
+          <v-list>
+            
+            <v-list-item v-if="user.is_admin === 1">
+              <v-list-item-title class="indigo--text">Admin Dashboard</v-list-item-title>
+            </v-list-item>
+            <v-list-item @click="toMyPosts">
+              <v-list-item-title>My Posts</v-list-item-title>
+            </v-list-item>
+            <v-list-item @click="logout">
+              <v-list-item-title>Logout</v-list-item-title>
+            </v-list-item>
+          </v-list>
+        </v-menu>
       </template>
       <template v-else>
         <nuxt-link tag="span" to="/signup">
@@ -23,7 +49,6 @@
         <nuxt-link tag="span" to="/login">
           <v-btn text>Login</v-btn>
         </nuxt-link>
-
       </template>
     </v-app-bar>
     <v-content>
@@ -46,7 +71,7 @@ import Logo from '~/components/Logo.vue'
 export default {
   data () {
     return {
-
+      value: false
     }
   },
   components:{
@@ -63,6 +88,9 @@ export default {
   methods: {
     logout(){
       this.$store.dispatch("logout");
+    },
+    toMyPosts(){
+      this.$router.push("/posts");
     }
   }
 }
