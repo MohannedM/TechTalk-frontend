@@ -2,12 +2,12 @@
     <div>
         <v-layout>
         <v-row justify="space-around">
-            <v-col sm12 md6>
+            <v-col sm="12" md="6">
                 <v-row align="center" style="height:200px">
                     <h1 class="grey--text text--darken-2">Share Your Tech Thoughts</h1>
                 </v-row>
             </v-col>
-            <v-col sm12 md6>
+            <v-col sm="12" md="6">
                 <v-form
                     ref="form"
                 >
@@ -42,13 +42,21 @@
 
             
                     <v-btn
-                    color="indigo"
+                    :color="edit ? 'grey' :'indigo'"
                     class="mr-4"
                     :disabled="$v.$invalid || !image || imageExtError !== null || imageSizeError !== null"
-                    @click="createPost"
+                    @click="edit ? updatePost() : createPost()"
                     dark
                     >
-                    Add Post
+                    {{edit ? 'Edit Post' : 'Add Post'}}
+                    </v-btn>
+                    <v-btn
+                    v-if="edit"
+                    color="red"
+                    @click="resetForm"
+                    dark
+                    >
+                      Cancel
                     </v-btn>
             
                 </v-form>
@@ -56,47 +64,9 @@
         </v-row>
         </v-layout>
         <v-layout class="mt-5">
-                  <v-row>
-                    <v-col xs12 sm6 md4 lg3>
-              <v-card
-      class="mx-auto"
-      max-width="400"
-    >
-      <v-img
-        class="white--text align-end"
-        height="200px"
-        src="https://cdn.vuetifyjs.com/images/cards/docks.jpg"
-      >
-        <v-card-title>Top 10 Australian beaches</v-card-title>
-      </v-img>
-  
-      <v-card-subtitle class="pb-0">Number 10</v-card-subtitle>
-  
-      <v-card-text class="text--primary">
-        <div>Whitehaven Beach</div>
-  
-        <div>Whitsunday Island, Whitsunday Islands</div>
-      </v-card-text>
-  
-      <v-card-actions>
-        <v-btn
-          color="orange"
-          text
-        >
-          Share
-        </v-btn>
-  
-        <v-btn
-          color="orange"
-          text
-        >
-          Explore
-        </v-btn>
-      </v-card-actions>
-    </v-card>
-
-          </v-col>
-      </v-row>
+        <v-row>
+          <post-col v-for="(post, index) in posts" :key="index" :post="post" :userPage="true" @editClicked="editPost(post)"></post-col>
+        </v-row>
 
         </v-layout>
     </div>
@@ -104,7 +74,37 @@
 
 <script>
 import { required, minLength, maxLength, unique } from "vuelidate/lib/validators";
+import PostCol from '~/components/PostCol.vue';
 export default {
+    fetch(context){
+          const graphqlQuery = {
+            query: `{
+                getUserPosts{
+                    _id
+                    title
+                    image
+                    content
+                    creator{
+                        name
+                    }
+                    createdAt
+                }
+            }`
+        };
+        return fetch("http://localhost:8080/graphql", {
+            method: "POST",
+            headers:{
+                Authorization: "Bearer " + context.store.getters.getToken,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(graphqlQuery)
+        })
+        .then(resData=>resData.json())
+        .then(result=>{
+            context.store.commit("setUserPosts", result.data.getUserPosts);
+        })
+        .catch(err=>console.log(err));
+    },
     data(){
         return{
             title: "",
@@ -112,7 +112,7 @@ export default {
             image: true,
             imageSizeError: null,
             imageExtError: null,
-
+            edit: false
         }
     },
     methods:{
@@ -120,6 +120,7 @@ export default {
         this.title = "";
         this.content = "";
         this.image = true;
+        this.edit = false;
         this.$v.$reset();
       },
       onFileSelected(event){
@@ -127,7 +128,7 @@ export default {
           this.imageExtError = null;
           this.image = true;
           if(!event) return this.image = null;
-          if(event.size > 50000){
+          if(event.size > 100000){
             return this.imageSizeError = "Max file size is 50MB";
           }
           const imageNameExt = event.name.split(".")[1];
@@ -137,7 +138,7 @@ export default {
           this.image = event;
         },
         requireImage(){
-          if(this.image === true) this.image = null;
+          if(this.image === true && !this.edit) this.image = null;
         },
         createPost(){
           this.$store.dispatch("addPost", {
@@ -145,10 +146,24 @@ export default {
             content: this.content,
             title: this.title
           })
-          .then(()=>{
+          .then(resData=>{
+            this.$store.commit("pushUserPost", resData.data.createPost);
             this.resetForm();
           })  
           .catch(err=>console.log(err));
+        },
+        editPost(post){
+          this.title = post.title;
+          this.edit = true;
+          this.content = post.content;
+        },
+        updatePost(){
+          const image = this.image !== true || this.image !== null ? this.image : '';
+          this.$store.dispatch("updatePost", {
+            title: this.title,
+            image,
+            content: this.content
+          })
         }
     },
     computed:{
@@ -172,7 +187,13 @@ export default {
           if(this.imageSizeError) return this.imageSizeError;
           if(this.imageExtError) return this.imageExtError;
           if(!this.image) return "Image is required";
+        },
+        posts(){
+          return this.$store.getters.getUserPosts;
         }
+    },
+    components:{
+      PostCol
     },
     validations: {
         title: {
@@ -185,7 +206,7 @@ export default {
             minLength: minLength(5),
             maxLength: maxLength(300)
         }
-
-    }
+    },
+    middleware: 'auth'
 }
 </script>

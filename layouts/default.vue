@@ -7,7 +7,9 @@
       flat
     >
       <v-toolbar-title>
-        <logo class="logo"></logo>
+        <nuxt-link to="/" tag="span"  style="cursor:pointer">
+          <img src="/4afd2384-7410-4e96-a5a5-8353390c7834_200x200.png" alt="Logo" class="logo ml-4">
+        </nuxt-link>
       </v-toolbar-title>
       <v-spacer />
       <template v-if="isLoggedIn">
@@ -53,7 +55,9 @@
     </v-app-bar>
     <v-content>
       <v-container>
+        <transition mode="out-in" name="fade">
         <nuxt />
+        </transition>
       </v-container>
     </v-content>
 
@@ -67,7 +71,6 @@
 </template>
 
 <script>
-import Logo from '~/components/Logo.vue'
 export default {
   data () {
     return {
@@ -75,7 +78,7 @@ export default {
     }
   },
   components:{
-    Logo
+
   },
   computed:{
     isLoggedIn(){
@@ -87,7 +90,10 @@ export default {
   },
   methods: {
     logout(){
-      this.$store.dispatch("logout");
+      this.$store.dispatch("logout")
+      .then(()=>{
+        this.$router.push("/");
+      })
     },
     toMyPosts(){
       this.$router.push("/posts");
@@ -96,5 +102,20 @@ export default {
 }
 </script>
 <style scoped>
+.logo{
+  height: 7rem;
+}
+.fade-enter{
+    opacity: 0;
+}
+.fade-enter-active{
+    transition: opacity 1s;
+}
+
+.fade-leave-active{
+    opacity: 0;
+    transition: opacity 1s;
+}
 
 </style>
+

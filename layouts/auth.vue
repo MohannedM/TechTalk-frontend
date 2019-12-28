@@ -1,10 +1,12 @@
 <template>
     <v-app>
         <v-row>
-            <v-col sm12 md6 class="indigo">
-                <logo></logo>
+            <v-col xs="12" sm="12" md="6" class="indigo">
+                <nuxt-link to="/">
+                    <logo></logo>
+                </nuxt-link>
             </v-col>
-            <v-col xs-12 md-6>
+            <v-col xs="12" sm="12" md="6">
                 <transition mode="out-in" name="fade">
                     <nuxt />
                 </transition>

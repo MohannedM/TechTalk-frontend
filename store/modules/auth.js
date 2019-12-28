@@ -18,14 +18,19 @@ const getters = {
 };
 
 const mutations = {
-    setAuthData(state, authData){
-        state.token = authData.token;
+    setUserData(state, authData){
         state.user = authData.user;
-
+    },
+    setAuthData(state, authData){
+        state.user = authData.user;
+        state.token = authData.token;
     },
     unsetAuthData(state){
         state.token = null;
         state.user = null;
+    },
+    setToken(state, token){
+        state.token = token;
     }
 }
 
@@ -56,6 +61,7 @@ const actions = {
         if (!token || !expiration) {
           return;
         }
+        vuexContext.commit("setToken", token);
         const graphqlQuery = {
             query: `
                 {
@@ -78,8 +84,7 @@ const actions = {
         })
         .then(res=>res.json())
         .then(resData=>{
-            vuexContext.commit("setAuthData", {
-                token: token,
+            vuexContext.commit("setUserData", {
                 user: resData.data.getUserData
             })
         })
@@ -165,6 +170,7 @@ const actions = {
     logoutTimer({dispatch}, expirationTime){
         setTimeout(()=>{
             dispatch("logout");
+            location.reload();  
         }, (expirationTime));
     }
 

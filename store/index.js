@@ -14,7 +14,7 @@ const createStore = () => {
             
         },
         actions:{
-            
+
         },
         modules:{
             auth,
