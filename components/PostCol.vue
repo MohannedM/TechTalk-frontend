@@ -3,6 +3,7 @@
               <v-card
       class="mx-auto"
       max-width="400"
+      max-height="750"
     >
     <nuxt-link tag="span" :to="`/posts/${post._id}`">
       <v-img
@@ -35,6 +36,7 @@
           <v-btn
             color="red"
             text
+            @click="deletePost"
           >
             Delete
           </v-btn>
@@ -63,6 +65,9 @@ export default {
       },
       editPost(){
         this.$emit("editClicked");
+      },
+      deletePost(){
+        this.$emit("deleteClicked");
       }
     }
 }

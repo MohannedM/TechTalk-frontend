@@ -65,7 +65,7 @@
         </v-layout>
         <v-layout class="mt-5">
         <v-row>
-          <post-col v-for="(post, index) in posts" :key="index" :post="post" :userPage="true" @editClicked="editPost(post)"></post-col>
+          <post-col v-for="(post, index) in posts" :key="index" :post="post" :userPage="true" @editClicked="editPost(post)" @deleteClicked="deletePost(post._id)"></post-col>
         </v-row>
 
         </v-layout>
@@ -107,6 +107,7 @@ export default {
     },
     data(){
         return{
+            _id: "",
             title: "",
             content: "",
             image: true,
@@ -117,6 +118,7 @@ export default {
     },
     methods:{
       resetForm(){
+        this._id = "";
         this.title = "";
         this.content = "";
         this.image = true;
@@ -153,17 +155,28 @@ export default {
           .catch(err=>console.log(err));
         },
         editPost(post){
+          this.resetForm();
+          this._id = post._id;
           this.title = post.title;
           this.edit = true;
           this.content = post.content;
         },
         updatePost(){
-          const image = this.image !== true || this.image !== null ? this.image : '';
+          const image = this.image !== true && this.image !== null ? this.image : '';
           this.$store.dispatch("updatePost", {
+            _id: this._id,
             title: this.title,
             image,
             content: this.content
           })
+          .then(()=>{
+            this.resetForm();
+          }).catch(err=>console.log(err));
+        },
+        deletePost(postId){
+          if(confirm("Are you sure you want to delete this post?")){
+            this.$store.dispatch("deletePost", postId);
+          }
         }
     },
     computed:{

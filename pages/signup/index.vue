@@ -70,7 +70,6 @@
 
 <script>
 import { required, email, minLength, sameAs, maxLength, unique } from "vuelidate/lib/validators";
-// const valid = require('vuelidate/lib/validators')
 const isEmailQuery = email => {
   return {
   query: `
