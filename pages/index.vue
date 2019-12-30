@@ -29,12 +29,6 @@
       </v-card-text>
 
       <v-card-actions>
-          <v-btn
-            color="red"
-            text
-          >
-            Like icon here
-          </v-btn>
 
       </v-card-actions>
     </v-card>
